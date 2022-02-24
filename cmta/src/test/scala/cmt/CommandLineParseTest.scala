@@ -5,6 +5,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import scopt.OEffect.ReportError
 
 import java.io.File
+import java.nio.file.Files
 
 class CommandLineParseTest extends AnyWordSpecLike with Matchers {
 
@@ -40,6 +41,16 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers {
         val error = assertLeft(resultOr)
         (error.errors should contain)
           .allOf(ReportError(s"$file1 is not a directory"), ReportError(s"$file2 is not a directory"))
+      }
+
+      "fail if main repository is not a git repository" in {
+        val mainRepository = Files.createTempDirectory("cmt").toFile.getAbsolutePath
+        val studentifiedDirectory = "./cmta/src/test/resources/i-am-another-directory"
+        val args = Array("studentify", mainRepository, studentifiedDirectory)
+        val resultOr = CmdLineParse.parse(args)
+
+        val error = assertLeft(resultOr)
+        error.errors should contain(ReportError(s"$mainRepository is not a git repository"))
       }
 
       "succeed if main repository and studentified directories exist and are directories" in {
