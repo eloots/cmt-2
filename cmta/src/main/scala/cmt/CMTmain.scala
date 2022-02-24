@@ -1,11 +1,16 @@
 package cmt
 
+import scopt.OEffect.ReportError
+
 object Main:
 
   def main(args: Array[String]): Unit =
     CmdLineParse.parse(args) match {
-      case Right(options) => selectAndExecuteCommand(options)
-      case Left(_)        => System.exit(1)
+      case Right(options) =>
+        selectAndExecuteCommand(options)
+
+      case Left(CmdLineParse.CmdLineParseError(x)) =>
+        printError(x.collect { case ReportError(msg) => msg }.mkString("\n"))
     }
 
   private def selectAndExecuteCommand(options: CmtaOptions): Unit = {
@@ -42,7 +47,6 @@ object Main:
       case _ =>
     }
   }
-
 
   extension (result: Either[String, Unit])
     def printResultOrError(message: String): Unit =
