@@ -32,24 +32,27 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers {
       }
 
       "fail if main repository and studentified directories are files" in {
-        val file = "./build.sbt"
-        val args = Array("studentify", file, file)
+        val file1 = "./cmta/src/test/resources/i-am-a-file.txt"
+        val file2 = "./cmta/src/test/resources/i-am-a-directory/i-am-a-file-in-a-directory.txt"
+        val args = Array("studentify", file1, file2)
         val resultOr = CmdLineParse.parse(args)
 
         val error = assertLeft(resultOr)
-        error.errors should contain(ReportError(s"$file is not a directory"))
+        (error.errors should contain)
+          .allOf(ReportError(s"$file1 is not a directory"), ReportError(s"$file2 is not a directory"))
       }
 
       "succeed if main repository and studentified directories exist and are directories" in {
-        val directory = "./cmta"
-        val args = Array("studentify", directory, directory)
+        val directory1 = "./cmta/src/test/resources/i-am-a-directory"
+        val directory2 = "./cmta/src/test/resources/i-am-another-directory"
+        val args = Array("studentify", directory1, directory2)
         val resultOr = CmdLineParse.parse(args)
 
         val result = assertRight(resultOr)
         val expectedResult = CmtaOptions(
-          new File(".").getAbsoluteFile.getParentFile,
+          new File(directory1),
           Studentify(
-            Some(new File(directory)),
+            Some(new File(directory2)),
             forceDeleteExistingDestinationFolder = false,
             initializeAsGitRepo = false))
 

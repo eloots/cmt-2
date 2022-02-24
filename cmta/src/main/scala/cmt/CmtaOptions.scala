@@ -50,13 +50,14 @@ private def mainRepoArgument(using builder: OParserBuilder[CmtaOptions]): OParse
       else if !f.isDirectory then failure(s"$f is not a directory")
       else success
     }
-    .action { (mainRepo, c) =>
-      Helpers.resolveMainRepoPath(mainRepo) match {
-        case Right(path) =>
-          c.copy(mainRepo = path)
-        case Left(msg) =>
-          printError(s"$mainRepo is not a git repository"); ???
+    .validate { f =>
+      Helpers.resolveMainRepoPath(f) match {
+        case Right(path) => success
+        case Left(msg)   => failure(s"$f is not a git repository")
       }
+    }
+    .action { (mainRepo, c) =>
+      c.copy(mainRepo = mainRepo)
     }
 
 private def configFileParser(using builder: OParserBuilder[CmtaOptions]): OParser[File, CmtaOptions] =
