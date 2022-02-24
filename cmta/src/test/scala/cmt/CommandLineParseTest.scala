@@ -4,9 +4,8 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import sbt.io.IO
+import sbt.io.syntax.*
 import scopt.OEffect.ReportError
-
-import java.io.File
 
 class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -71,9 +70,9 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
 
         val result = assertRight(resultOr)
         val expectedResult = CmtaOptions(
-          new File(mainRepositoryPath),
+          file(mainRepositoryPath),
           Studentify(
-            Some(new File(studentifiedDirectoryPath)),
+            Some(file(studentifiedDirectoryPath)),
             forceDeleteExistingDestinationFolder = false,
             initializeAsGitRepo = false))
 
