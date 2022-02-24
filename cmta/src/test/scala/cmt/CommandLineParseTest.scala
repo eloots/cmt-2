@@ -3,14 +3,14 @@ package cmt
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import sbt.io.IO
 import scopt.OEffect.ReportError
 
 import java.io.File
-import java.nio.file.Files
 
 class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndAfterAll {
 
-  private val tempDirectory = Files.createTempDirectory("studentify").toFile
+  private val tempDirectory = IO.createTemporaryDirectory
 
   override def afterAll(): Unit =
     tempDirectory.delete()
