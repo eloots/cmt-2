@@ -1,5 +1,6 @@
 package cmt
 
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import scopt.OEffect.ReportError
@@ -7,7 +8,12 @@ import scopt.OEffect.ReportError
 import java.io.File
 import java.nio.file.Files
 
-class CommandLineParseTest extends AnyWordSpecLike with Matchers {
+class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndAfterAll {
+
+  private val tempDirectory = Files.createTempDirectory("studentify").toFile
+
+  override def afterAll(): Unit =
+    tempDirectory.delete()
 
   "commmand line parser" when {
 
@@ -24,46 +30,50 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers {
       }
 
       "fail if main repository and studentified directories don't exist" in {
-        val args = Array("studentify", "/i/do/not/exist", "neither/do/i")
+        val mainRepositoryPath = s"${tempDirectory.getAbsolutePath}/i/do/not/exist"
+        val studentifiedDirectoryPath = s"${tempDirectory.getAbsolutePath}/neither/do/i"
+        val args = Array("studentify", mainRepositoryPath, studentifiedDirectoryPath)
         val resultOr = CmdLineParse.parse(args)
 
         val error = assertLeft(resultOr)
-        (error.errors should contain)
-          .allOf(ReportError("/i/do/not/exist does not exist"), ReportError("neither/do/i does not exist"))
+        (error.errors should contain).allOf(
+          ReportError(s"$mainRepositoryPath does not exist"),
+          ReportError(s"$studentifiedDirectoryPath does not exist"))
       }
 
       "fail if main repository and studentified directories are files" in {
-        val file1 = "./cmta/src/test/resources/i-am-a-file.txt"
-        val file2 = "./cmta/src/test/resources/i-am-a-directory/i-am-a-file-in-a-directory.txt"
-        val args = Array("studentify", file1, file2)
+        val mainRepositoryPath = "./cmta/src/test/resources/i-am-a-file.txt"
+        val studentifiedDirectoryPath = "./cmta/src/test/resources/i-am-a-directory/i-am-a-file-in-a-directory.txt"
+        val args = Array("studentify", mainRepositoryPath, studentifiedDirectoryPath)
         val resultOr = CmdLineParse.parse(args)
 
         val error = assertLeft(resultOr)
-        (error.errors should contain)
-          .allOf(ReportError(s"$file1 is not a directory"), ReportError(s"$file2 is not a directory"))
+        (error.errors should contain).allOf(
+          ReportError(s"$mainRepositoryPath is not a directory"),
+          ReportError(s"$studentifiedDirectoryPath is not a directory"))
       }
 
       "fail if main repository is not a git repository" in {
-        val mainRepository = Files.createTempDirectory("cmt").toFile.getAbsolutePath
-        val studentifiedDirectory = "./cmta/src/test/resources/i-am-another-directory"
-        val args = Array("studentify", mainRepository, studentifiedDirectory)
+        val mainRepositoryPath = tempDirectory.getAbsolutePath
+        val studentifiedDirectoryPath = "./cmta/src/test/resources/i-am-another-directory"
+        val args = Array("studentify", mainRepositoryPath, studentifiedDirectoryPath)
         val resultOr = CmdLineParse.parse(args)
 
         val error = assertLeft(resultOr)
-        error.errors should contain(ReportError(s"$mainRepository is not a git repository"))
+        error.errors should contain(ReportError(s"$mainRepositoryPath is not a git repository"))
       }
 
       "succeed if main repository and studentified directories exist and are directories" in {
-        val directory1 = "./cmta/src/test/resources/i-am-a-directory"
-        val directory2 = "./cmta/src/test/resources/i-am-another-directory"
-        val args = Array("studentify", directory1, directory2)
+        val mainRepositoryPath = "./cmta/src/test/resources/i-am-a-directory"
+        val studentifiedDirectoryPath = "./cmta/src/test/resources/i-am-another-directory"
+        val args = Array("studentify", mainRepositoryPath, studentifiedDirectoryPath)
         val resultOr = CmdLineParse.parse(args)
 
         val result = assertRight(resultOr)
         val expectedResult = CmtaOptions(
-          new File(directory1),
+          new File(mainRepositoryPath),
           Studentify(
-            Some(new File(directory2)),
+            Some(new File(studentifiedDirectoryPath)),
             forceDeleteExistingDestinationFolder = false,
             initializeAsGitRepo = false))
 
