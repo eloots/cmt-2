@@ -46,8 +46,9 @@ private def mainRepoArgument(using builder: OParserBuilder[CmtaOptions]): OParse
   arg[File]("<Main repo>")
     .text("Root folder (or a subfolder thereof) the main repository")
     .validate { f =>
-      if f.isDirectory then success
-      else failure(s"$f is not a directory")
+      if !f.exists then failure(s"$f does not exist")
+      else if !f.isDirectory then failure(s"$f is not a directory")
+      else success
     }
     .action { (mainRepo, c) =>
       Helpers.resolveMainRepoPath(mainRepo) match {
@@ -94,7 +95,7 @@ private def linearizeCmdParser(using builder: OParserBuilder[CmtaOptions]): OPar
         .validate { baseFolder =>
           (baseFolder.exists, baseFolder.isDirectory) match
             case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} doesn't exist")
+            case (false, _)   => failure(s"${baseFolder.getPath} does not exist")
             case (_, false) =>
               failure(s"${baseFolder.getPath} is not a directory")
         }
@@ -150,7 +151,7 @@ private def studentifyCmdParser(using builder: OParserBuilder[CmtaOptions]): OPa
         .validate { baseFolder =>
           (baseFolder.exists, baseFolder.isDirectory) match
             case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} doesn't exist")
+            case (false, _)   => failure(s"${baseFolder.getPath} does not exist")
             case (_, false) =>
               failure(s"${baseFolder.getPath} is not a directory")
         }
