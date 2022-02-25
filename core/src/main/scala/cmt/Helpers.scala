@@ -113,13 +113,19 @@ object Helpers:
 
   def writeStudentifiedCMTConfig(configFile: File, exercises: Seq[String])(config: CMTaConfig): Unit =
     val cmtConfig =
-      s"""studentified-repo-solutions-folder=${config.studentifiedRepoSolutionsFolder}
-         |studentified-saved-states-folder=${config.studentifiedSavedStatesFolder}
-         |active-exercise-folder=${config.studentifiedRepoActiveExerciseFolder}
-         |test-code-folders=${config.testCodeFolders.mkString("[\n   ", ",\n   ", "\n]")}
-         |read-me-files=${config.readMeFiles.mkString("[\n   ", ",\n   ", "\n]")}
-         |exercises=${exercises.mkString("[\n   ", ",\n   ", "\n]")}
-         |cmt-studentified-dont-touch=${config.cmtStudentifiedDontTouch.mkString("[\n   ", ",\n   ", "\n]")}
+      s"""studentified-repo-solutions-folder = ${config.studentifiedRepoSolutionsFolder}
+         |
+         |studentified-saved-states-folder = ${config.studentifiedSavedStatesFolder}
+         |
+         |active-exercise-folder = ${config.studentifiedRepoActiveExerciseFolder}
+         |
+         |test-code-folders = ${config.testCodeFolders.mkString("[\n   ", ",\n   ", "\n]")}
+         |
+         |read-me-files = ${config.readMeFiles.mkString("[\n   ", ",\n   ", "\n]")}
+         |
+         |exercises = ${exercises.mkString("[\n   ", ",\n   ", "\n]")}
+         |
+         |cmt-studentified-dont-touch = ${config.cmtStudentifiedDontTouch.mkString("[\n   ", ",\n   ", "\n]")}
        """.stripMargin
     dumpStringToFile(cmtConfig, configFile)
 
