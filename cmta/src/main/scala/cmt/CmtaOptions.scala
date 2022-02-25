@@ -185,7 +185,7 @@ private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[
     .children(
       mainRepoArgument,
       opt[Int]("start-renumber-at")
-        .text("Number of exercise to start renumbering from")
+        .text("Start renumbering from exercise number #")
         .abbr("from")
         .validate(startAt =>
           if startAt >= 0 then success
@@ -196,7 +196,7 @@ private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[
           case (startAt, c) =>
             c.copy(command = RenumberExercises(startRenumAt = Some(startAt)))
         },
-      opt[Int]("renumber-to")
+      opt[Int]("to")
         .text("Renumber start offset (default=1)")
         .abbr("to")
         .validate(offset =>
@@ -208,9 +208,9 @@ private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[
           case (offset, c) =>
             c.copy(command = RenumberExercises(renumOffset = offset))
         },
-      opt[Int]("increment-by")
+      opt[Int]("step")
         .text("Renumber step size (default=1)")
-        .abbr("by")
+        .abbr("step")
         .validate(step =>
           if step >= 1 then success
           else failure(s"renumber step size should be >= 1"))

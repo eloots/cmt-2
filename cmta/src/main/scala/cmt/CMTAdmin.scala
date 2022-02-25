@@ -32,29 +32,37 @@ object CMTAdmin:
       (exerciseNumsBeforeSplit, exerciseNumsAfterSplit) match
         case (Vector(), Vector(renumOffset, _)) =>
           Left("Renumber: nothing to renumber")
-        case (staysInPlace, _) =>
-          if staysInPlace.nonEmpty && renumOffset <= staysInPlace.last then
+        case (before, _) if rangeOverlapsWithOtherExercises(before, renumOffset) =>
             Left("Moved exercise range overlaps with other exercises")
-          else if renumOffset + (exercisesAfterSplit.size - 1) * renumStep > 999 then
+        case (before, _) if exceedsAvailableSpace(exercisesAfterSplit, renumOffset = renumOffset, renumStep= renumStep) =>
             Left(s"Cannot renumber exercises as it would exceed the available exercise number space")
-          else
-            val moves =
-              for {
-                (exercise, index) <- exercisesAfterSplit.zipWithIndex
-                newNumber = renumOffset + index * renumStep
-                oldExerciseFolder = mainRepoExerciseFolder / exercise
-                newExerciseFolder =
-                  mainRepoExerciseFolder / renumberExercise(exercise, exercisePrefix, newNumber)
-                if oldExerciseFolder != newExerciseFolder
-              } yield (oldExerciseFolder, newExerciseFolder)
+        case (before, _) =>
+          val moves =
+            for {
+              (exercise, index) <- exercisesAfterSplit.zipWithIndex
+              newNumber = renumOffset + index * renumStep
+              oldExerciseFolder = mainRepoExerciseFolder / exercise
+              newExerciseFolder =
+                mainRepoExerciseFolder / renumberExercise(exercise, exercisePrefix, newNumber)
+              if oldExerciseFolder != newExerciseFolder
+            } yield (oldExerciseFolder, newExerciseFolder)
 
-            if moves.isEmpty
-            then Left("Renumber: nothing to renumber")
-            else
-              sbtio.move(moves)
-              Right(())
+          if moves.isEmpty
+          then Left("Renumber: nothing to renumber")
+          else
+            sbtio.move(moves)
+            Right(())
     }
+
   end renumberExercises
+
+  private def exceedsAvailableSpace(exercisesAfterSplit: Vector[String], renumOffset: Int, renumStep: Int): Boolean =
+    renumOffset + (exercisesAfterSplit.size - 1) * renumStep > 999
+  end exceedsAvailableSpace
+
+  private def rangeOverlapsWithOtherExercises(before: Vector[Int], renumOffset: Int): Boolean =
+    before.nonEmpty && (renumOffset <= before.last)
+  end rangeOverlapsWithOtherExercises
 
   def duplicateInsertBefore(mainRepo: File, exerciseNumber: Int)(config: CMTaConfig): Either[String, Unit] =
     val ExercisePrefixesAndExerciseNames(prefixes, exercises) =
