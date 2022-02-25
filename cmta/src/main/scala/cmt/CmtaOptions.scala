@@ -176,7 +176,7 @@ private def studentifyCmdParser(using builder: OParserBuilder[CmtaOptions]): OPa
             c.copy(command = x.copy(initializeAsGitRepo = true))
         }))
 
-private def throwOr[T: ClassTag](pf: PartialFunction[(T, CmtaOptions), CmtaOptions]): (T, CmtaOptions) => CmtaOptions =
+private def throwOr[T](pf: PartialFunction[(T, CmtaOptions), CmtaOptions]): (T, CmtaOptions) => CmtaOptions =
   (argOpt, options) =>
     pf.lift((argOpt, options))
       .getOrElse(
