@@ -157,30 +157,27 @@ private def studentifyCmdParser(using builder: OParserBuilder[CmtaOptions]): OPa
             case (_, false) =>
               failure(s"${baseFolder.getPath} is not a directory")
         }
-        .action(throwOr {
-          case (studRepo, c @ CmtaOptions(_, x: Studentify, _)) =>
-            c.copy(command = x.copy(studentifyBaseFolder = Some(studRepo)))
-        }),
-      opt[Unit]("force-delete")
-        .text("Force-delete a pre-existing destination folder")
-        .abbr("f")
-        .action(throwOr {
+        .throwOrAction { case (studRepo, c @ CmtaOptions(_, x: Studentify, _)) =>
+          c.copy(command = x.copy(studentifyBaseFolder = Some(studRepo)))
+        },
+      opt[Unit]("force-delete").text("Force-delete a pre-existing destination folder").abbr("f")
+        .throwOrAction {
           case (_, c @ CmtaOptions(mainRepo, x: Studentify, _)) =>
             c.copy(command = x.copy(forceDeleteExistingDestinationFolder = true))
-        }),
-      opt[Unit]("init-git")
-        .text("Initialize studentified repo as a git repo")
-        .abbr("g")
-        .action(throwOr {
+        },
+      opt[Unit]("init-git").text("Initialize studentified repo as a git repo").abbr("g")
+        .throwOrAction {
           case (_, c @ CmtaOptions(mainRepo, x: Studentify, _)) =>
             c.copy(command = x.copy(initializeAsGitRepo = true))
-        }))
+        })
 
-private def throwOr[T](pf: PartialFunction[(T, CmtaOptions), CmtaOptions]): (T, CmtaOptions) => CmtaOptions =
-  (argOpt, options) =>
-    pf.lift((argOpt, options))
-      .getOrElse(
-        throw new IllegalStateException(s"Received an unexpected command type '${options.command.getClass.getName}'"))
+extension [T](parser: OParser[T, CmtaOptions])
+  def throwOrAction(pf: PartialFunction[(T, CmtaOptions), CmtaOptions]): OParser[T, CmtaOptions] = {
+    parser.action((argOpt, options) =>
+      pf.lift((argOpt, options))
+        .getOrElse(throw new IllegalStateException(
+          s"Received an unexpected command type '${options.command.getClass.getName}'")))
+  }
 
 private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
   import builder.*
