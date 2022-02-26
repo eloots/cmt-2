@@ -41,4 +41,4 @@ jobs:
             ${{ runner.os }}-
 
       - name: Run tests
-        run: sbt test
+        run: cd code; sbt test
