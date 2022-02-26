@@ -22,6 +22,12 @@ jobs:
         with:
           java-version: 11
 
+      - name: Setup Coursier
+        run: |
+          curl -fLo coursier https://git.io/coursier-cli &&
+          chmod +x coursier &&
+          ./coursier
+
       - name: Cache Ivy
         uses: actions/cache@v2
         with:
@@ -41,4 +47,5 @@ jobs:
             ${{ runner.os }}-
 
       - name: Run tests
-        run: cd code; sbt test
+        run: |
+          sbt test
