@@ -48,5 +48,6 @@ jobs:
 
       - name: Run tests
         run: |
+          cd CMT &&
           ls &&
           sbt test
