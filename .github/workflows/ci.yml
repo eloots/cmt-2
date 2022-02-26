@@ -48,4 +48,5 @@ jobs:
 
       - name: Run tests
         run: |
+          ls &&
           sbt test
