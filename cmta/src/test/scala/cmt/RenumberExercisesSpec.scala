@@ -32,7 +32,6 @@ class RenumberExercisesSpec extends AnyWordSpec with should.Matchers with Before
   override def afterAll(): Unit =
     tempDirectory.delete()
 
-
   "Inserting an exercise before the first exercise at index 0" should {
     "succeed if space is available in the exercise number space" in {
       val mainRepo = tempDirectory / UUID.randomUUID().toString
@@ -48,28 +47,31 @@ class RenumberExercisesSpec extends AnyWordSpec with should.Matchers with Before
       {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 20, 2)(config)
         result shouldBe Right(())
-        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) = Helpers.getExercisePrefixAndExercises(mainRepo)(config)
+        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) =
+          Helpers.getExercisePrefixAndExercises(mainRepo)(config)
         renumberedExercises shouldBe Vector("exercise_020_desc", "exercise_022_desc", "exercise_024_desc")
       }
       {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
         result shouldBe Right(())
-        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) = Helpers.getExercisePrefixAndExercises(mainRepo)(config)
+        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) =
+          Helpers.getExercisePrefixAndExercises(mainRepo)(config)
         renumberedExercises shouldBe Vector("exercise_001_desc", "exercise_002_desc", "exercise_003_desc")
       }
       {
         val result = CMTAdmin.renumberExercises(mainRepo, Some(1), 0, 1)(config)
         result shouldBe Right(())
-        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) = Helpers.getExercisePrefixAndExercises(mainRepo)(config)
+        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) =
+          Helpers.getExercisePrefixAndExercises(mainRepo)(config)
         renumberedExercises shouldBe Vector("exercise_000_desc", "exercise_001_desc", "exercise_002_desc")
       }
       {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
         result shouldBe Right(())
-        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) = Helpers.getExercisePrefixAndExercises(mainRepo)(config)
+        val ExercisePrefixesAndExerciseNames(prefixes, renumberedExercises) =
+          Helpers.getExercisePrefixAndExercises(mainRepo)(config)
         renumberedExercises shouldBe Vector("exercise_001_desc", "exercise_002_desc", "exercise_003_desc")
       }
-
 
     }
   }
