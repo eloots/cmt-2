@@ -125,7 +125,9 @@ object Helpers:
          |
          |exercises = ${exercises.mkString("[\n   ", ",\n   ", "\n]")}
          |
-         |cmt-studentified-dont-touch = ${config.cmtStudentifiedDontTouch.map(path => s"${config.studentifiedRepoActiveExerciseFolder}/${path}").mkString("[\n   ", ",\n   ", "\n]")}
+         |cmt-studentified-dont-touch = ${config.cmtStudentifiedDontTouch
+          .map(path => s"${config.studentifiedRepoActiveExerciseFolder}/${path}")
+          .mkString("[\n   ", ",\n   ", "\n]")}
        """.stripMargin
     dumpStringToFile(cmtConfig, configFile)
 

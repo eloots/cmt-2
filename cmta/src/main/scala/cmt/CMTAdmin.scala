@@ -33,9 +33,10 @@ object CMTAdmin:
         case (Vector(), Vector(renumOffset, _)) =>
           Left("Renumber: nothing to renumber")
         case (before, _) if rangeOverlapsWithOtherExercises(before, renumOffset) =>
-            Left("Moved exercise range overlaps with other exercises")
-        case (before, _) if exceedsAvailableSpace(exercisesAfterSplit, renumOffset = renumOffset, renumStep= renumStep) =>
-            Left(s"Cannot renumber exercises as it would exceed the available exercise number space")
+          Left("Moved exercise range overlaps with other exercises")
+        case (before, _)
+            if exceedsAvailableSpace(exercisesAfterSplit, renumOffset = renumOffset, renumStep = renumStep) =>
+          Left(s"Cannot renumber exercises as it would exceed the available exercise number space")
         case (before, _) =>
           val moves =
             for {
