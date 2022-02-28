@@ -50,7 +50,7 @@ object CMTAdmin:
           if moves.isEmpty
           then Left("Renumber: nothing to renumber")
           else
-            sbtio.move(moves)
+            if renumOffset > renumStartAt then sbtio.move(moves.reverse) else sbtio.move(moves)
             Right(())
     }
 
