@@ -41,9 +41,57 @@ object StudentifyArguments extends CommandLineArguments with Tables {
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory),
       CmtaOptions(
-        Helpers.resolveMainRepoPath(file(firstRealDirectory)).toOption.get,
+        baseDirectory,
         Studentify(
           Some(file(secondRealDirectory)),
           forceDeleteExistingDestinationFolder = false,
-          initializeAsGitRepo = false))))
+          initializeAsGitRepo = false))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = true,
+          initializeAsGitRepo = false))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "-f"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = true,
+          initializeAsGitRepo = false))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "--init-git"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = false,
+          initializeAsGitRepo = true))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "-g"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = false,
+          initializeAsGitRepo = true))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete", "--init-git"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = true,
+          initializeAsGitRepo = true))),
+    (
+      Seq(identifier, firstRealDirectory, secondRealDirectory, "-f", "-g"),
+      CmtaOptions(
+        baseDirectory,
+        Studentify(
+          Some(file(secondRealDirectory)),
+          forceDeleteExistingDestinationFolder = true,
+          initializeAsGitRepo = true))))
 }

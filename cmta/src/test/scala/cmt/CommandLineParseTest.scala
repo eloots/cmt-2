@@ -24,7 +24,7 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
   override def afterAll(): Unit =
     tempDirectory.delete()
 
-  private val commandArguments = List(StudentifyArguments, DuplicateInsertBeforeArguments)
+  private val commandArguments = List(StudentifyArguments, DuplicateInsertBeforeArguments, LinearizeArguments)
 
   "CLI Parser" when {
 
@@ -34,7 +34,6 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
 
         "report appropriate errors" in {
           forAll(command.invalidArguments(tempDirectory)) { (args: Seq[String], errors: Seq[ReportError]) =>
-            println(args.mkString(" "))
             assertFailureWithErrors(args.toArray, errors *)
           }
         }
@@ -47,7 +46,6 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
 
         "return expected results" in {
           forAll(command.validArguments(tempDirectory)) { (args: Seq[String], expectedResult: CmtaOptions) =>
-            println(args.mkString(" "))
             assertSuccessWithResponse(args.toArray, expectedResult)
           }
         }
