@@ -6,6 +6,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import sbt.io.IO
 import sbt.io.syntax.*
 import scopt.OEffect.ReportError
+import scala.language.postfixOps
 
 class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -37,6 +38,7 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
         val error = assertLeft(resultOr)
         (error.errors should contain).allOf(
           ReportError(s"$mainRepositoryPath does not exist"),
+          ReportError(s"$mainRepositoryPath is not a git repository"),
           ReportError(s"$studentifiedDirectoryPath does not exist"))
       }
 
@@ -49,6 +51,7 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
         val error = assertLeft(resultOr)
         (error.errors should contain).allOf(
           ReportError(s"$mainRepositoryPath is not a directory"),
+          ReportError(s"$mainRepositoryPath is not a git repository"),
           ReportError(s"$studentifiedDirectoryPath is not a directory"))
       }
 
@@ -79,6 +82,56 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
         result shouldBe expectedResult
       }
     }
+
+    "given the 'dib' command" should {
+
+      "fail if main repository argument is missing" in {
+        val args = Array("dib")
+        val resultOr = CmdLineParse.parse(args)
+
+        val error = assertLeft(resultOr)
+        (error.errors should contain)
+          .allOf(ReportError("Missing argument <Main repo>"), ReportError("Missing option --exercise-number"))
+      }
+
+      "fail if main repository directory does not exist" in {
+        val mainRepositoryPath = s"${tempDirectory.getAbsolutePath}/i/do/not/exist"
+        val args = Array("dib", mainRepositoryPath)
+        val resultOr = CmdLineParse.parse(args)
+
+        val error = assertLeft(resultOr)
+        (error.errors should contain).allOf(
+          ReportError(s"$mainRepositoryPath does not exist"),
+          ReportError(s"$mainRepositoryPath is not a git repository"),
+          ReportError("Missing option --exercise-number"))
+      }
+
+      "fail if main repository is a file" in {
+        val mainRepositoryPath = "./cmta/src/test/resources/i-am-a-file.txt"
+
+        assertFailureWithErrors(
+          Array("dib", mainRepositoryPath),
+          ReportError(s"$mainRepositoryPath is not a directory"),
+          ReportError(s"$mainRepositoryPath is not a git repository"),
+          ReportError("Missing option --exercise-number"))
+      }
+
+      "fail if main repository is not a git repository" in {
+        val mainRepositoryPath = tempDirectory.getAbsolutePath
+        val args = Array("dib", mainRepositoryPath)
+        val resultOr = CmdLineParse.parse(args)
+
+        val error = assertLeft(resultOr)
+        error.errors should contain(ReportError(s"$mainRepositoryPath is not a git repository"))
+      }
+    }
+  }
+
+  private def assertFailureWithErrors(args: Array[String], errors: ReportError*) = {
+    val resultOr = CmdLineParse.parse(args)
+
+    val error = assertLeft(resultOr)
+    (error.errors should contain).allElementsOf(errors)
   }
 
   private def assertRight[E, T](either: Either[E, T]): T =
