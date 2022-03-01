@@ -24,7 +24,7 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
   override def afterAll(): Unit =
     tempDirectory.delete()
 
-  private val commandArguments = List(StudentifyArguments, DuplicateInsertBeforeArguments, LinearizeArguments, DelinearizeArguments)
+  private val commandArguments = List(StudentifyArguments, DuplicateInsertBeforeArguments, LinearizeArguments, DelinearizeArguments, RenumberArguments)
 
   "CLI Parser" when {
 
