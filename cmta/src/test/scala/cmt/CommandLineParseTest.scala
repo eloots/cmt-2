@@ -1,5 +1,6 @@
 package cmt
 
+import cmt.domain.{MainRepositoryDirectory, StudentifiedDirectory}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -69,12 +70,11 @@ class CommandLineParseTest extends AnyWordSpecLike with Matchers with BeforeAndA
         val resultOr = CmdLineParse.parse(args)
 
         val result = assertRight(resultOr)
-        val expectedResult = CmtaOptions(
-          Helpers.resolveMainRepoPath(file(mainRepositoryPath)).toOption.get,
-          Studentify(
-            Some(file(studentifiedDirectoryPath)),
-            forceDeleteExistingDestinationFolder = false,
-            initializeAsGitRepo = false))
+        val expectedResult = Studentify
+          .default()
+          .copy(
+            mainRepositoryDirectory = MainRepositoryDirectory(Helpers.resolveMainRepoPath(file(mainRepositoryPath)).toOption.get),
+            maybeStudentifiedDirectory = Some(StudentifiedDirectory(file(studentifiedDirectoryPath))))
 
         result shouldBe expectedResult
       }

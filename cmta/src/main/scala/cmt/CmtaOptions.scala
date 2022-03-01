@@ -1,32 +1,151 @@
 package cmt
 
-import scopt.OParser
-import scopt.OParserBuilder
+import cmt.Readers.*
+import cmt.Validatable.given
+import cmt.domain.*
 import sbt.io.syntax.*
+import scopt.{OParser, OParserBuilder}
 
 sealed trait CmtaCommands
-case object Missing extends CmtaCommands
-final case class RenumberExercises(startRenumAt: Option[Int] = None, renumOffset: Int = 1, renumStep: Int = 1)
-    extends CmtaCommands
-final case class DuplicateInsertBefore(exerciseNumber: Int = 0) extends CmtaCommands
-final case class Studentify(
-    studentifyBaseFolder: Option[File] = None,
-    forceDeleteExistingDestinationFolder: Boolean = false,
-    initializeAsGitRepo: Boolean = false)
-    extends CmtaCommands
-final case class Linearize(
-    linearizeBaseFolder: Option[File] = None,
-    forceDeleteExistingDestinationFolder: Boolean = false)
-    extends CmtaCommands
-final case class DeLinearize(linearizeBaseFolder: Option[File] = None) extends CmtaCommands
 
-final case class CmtaOptions(
-    mainRepo: File = new File("."),
-    command: CmtaCommands = Missing,
-    configFile: Option[File] = None)
+case object Missing extends CmtaCommands
+
+sealed trait ValidCommand extends CmtaCommands {
+  val mainRepositoryDirectory: MainRepositoryDirectory
+  val maybeConfigurationFile: Option[ConfigurationFile]
+
+  def toConfig: CMTaConfig =
+    new CMTaConfig(mainRepositoryDirectory.value, maybeConfigurationFile.map(_.value))
+
+  def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand
+  def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand
+}
+
+final case class RenumberExercises(
+    mainRepositoryDirectory: MainRepositoryDirectory,
+    maybeRenumberFrom: Option[RenumberFrom] = None,
+    renumberTo: RenumberTo,
+    renumberStep: RenumberStep,
+    maybeConfigurationFile: Option[ConfigurationFile])
+    extends ValidCommand {
+  override def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand =
+    copy(mainRepositoryDirectory = mainRepositoryDirectory)
+
+  override def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand =
+    copy(maybeConfigurationFile = maybeConfigurationFile)
+}
+object RenumberExercises:
+  def default(
+      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory.default(),
+      maybeRenumberFrom: Option[RenumberFrom] = None,
+      renumberTo: RenumberTo = RenumberTo(1),
+      renumberStep: RenumberStep = RenumberStep(1),
+      maybeConfigurationFile: Option[ConfigurationFile] = None): RenumberExercises =
+    RenumberExercises(mainRepositoryDirectory, maybeRenumberFrom, renumberTo, renumberStep, maybeConfigurationFile)
+
+final case class DuplicateInsertBefore(
+    mainRepositoryDirectory: MainRepositoryDirectory,
+    exerciseNumber: ExerciseNumber,
+    maybeConfigurationFile: Option[ConfigurationFile])
+    extends ValidCommand {
+  override def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand =
+    copy(mainRepositoryDirectory = mainRepositoryDirectory)
+
+  override def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand =
+    copy(maybeConfigurationFile = maybeConfigurationFile)
+}
+object DuplicateInsertBefore:
+  def default(
+      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory.default(),
+      exerciseNumber: ExerciseNumber = ExerciseNumber(0),
+      maybeConfigurationFile: Option[ConfigurationFile] = None): DuplicateInsertBefore =
+    DuplicateInsertBefore(mainRepositoryDirectory, exerciseNumber, maybeConfigurationFile)
+
+final case class Studentify(
+    mainRepositoryDirectory: MainRepositoryDirectory,
+    maybeStudentifiedDirectory: Option[StudentifiedDirectory],
+    forceDeleteDestinationDirectory: DeleteExistingDirectoryDecision,
+    initializeAsGitRepo: InitializeAsGitRepositoryDecision,
+    maybeConfigurationFile: Option[ConfigurationFile])
+    extends ValidCommand {
+  override def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand =
+    copy(mainRepositoryDirectory = mainRepositoryDirectory)
+
+  override def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand =
+    copy(maybeConfigurationFile = maybeConfigurationFile)
+}
+object Studentify:
+  def default(
+      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory.default(),
+      maybeStudentifiedDirectory: Option[StudentifiedDirectory] = None,
+      forceDeleteDestinationDirectory: DeleteExistingDirectoryDecision =
+        DeleteExistingDirectoryDecision.DoNotDeleteExistingDirectory,
+      initializeAsGitRepo: InitializeAsGitRepositoryDecision =
+        InitializeAsGitRepositoryDecision.DoNotInitializeAsGitRepository,
+      maybeConfigurationFile: Option[ConfigurationFile] = None): Studentify =
+    Studentify(
+      mainRepositoryDirectory,
+      maybeStudentifiedDirectory,
+      forceDeleteDestinationDirectory,
+      initializeAsGitRepo,
+      maybeConfigurationFile)
+
+final case class Linearize(
+    mainRepositoryDirectory: MainRepositoryDirectory,
+    maybeLinearizeBaseDirectory: Option[LinearizeBaseDirectory],
+    forceDeleteDestinationDirectory: DeleteExistingDirectoryDecision,
+    maybeConfigurationFile: Option[ConfigurationFile])
+    extends ValidCommand {
+  override def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand =
+    copy(mainRepositoryDirectory = mainRepositoryDirectory)
+
+  override def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand =
+    copy(maybeConfigurationFile = maybeConfigurationFile)
+}
+object Linearize:
+  def default(
+      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory.default(),
+      maybeLinearizeBaseDirectory: Option[LinearizeBaseDirectory] = None,
+      forceDeleteDestinationDirectory: DeleteExistingDirectoryDecision =
+        DeleteExistingDirectoryDecision.DoNotDeleteExistingDirectory,
+      maybeConfigurationFile: Option[ConfigurationFile] = None): Linearize =
+    Linearize(
+      mainRepositoryDirectory,
+      maybeLinearizeBaseDirectory,
+      forceDeleteDestinationDirectory,
+      maybeConfigurationFile)
+
+final case class Delinearize(
+    mainRepositoryDirectory: MainRepositoryDirectory,
+    maybeLinearizeBaseDirectory: Option[LinearizeBaseDirectory],
+    maybeConfigurationFile: Option[ConfigurationFile])
+    extends ValidCommand {
+  override def withMainRepositoryDirectory(mainRepositoryDirectory: MainRepositoryDirectory): ValidCommand =
+    copy(mainRepositoryDirectory = mainRepositoryDirectory)
+
+  override def withMaybeConfigurationFile(maybeConfigurationFile: Option[ConfigurationFile]): ValidCommand =
+    copy(maybeConfigurationFile = maybeConfigurationFile)
+}
+object Delinearize:
+  def default(
+      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory.default(),
+      maybeLinearizeBaseDirectory: Option[LinearizeBaseDirectory] = None,
+      maybeConfigurationFile: Option[ConfigurationFile] = None): Delinearize =
+    Delinearize(mainRepositoryDirectory, maybeLinearizeBaseDirectory, maybeConfigurationFile)
+
+//final case class CmtaOptions(
+//    command: CmtaCommands,
+//    mainRepositoryDirectory: MainRepositoryDirectory,
+//    maybeConfigurationFile: Option[ConfigurationFile])
+//object CmtaOptions:
+//  def default(
+//      command: CmtaCommands = Missing,
+//      mainRepositoryDirectory: MainRepositoryDirectory = MainRepositoryDirectory(file(".")),
+//      maybeConfigurationFile: Option[ConfigurationFile] = None): CmtaOptions =
+//    CmtaOptions(command, mainRepositoryDirectory, maybeConfigurationFile)
 
 val cmtaParser = {
-  given builder: OParserBuilder[CmtaOptions] = OParser.builder[CmtaOptions]
+  given builder: OParserBuilder[CmtaCommands] = OParser.builder[CmtaCommands]
   import builder.*
 
   OParser.sequence(
@@ -40,180 +159,135 @@ val cmtaParser = {
     validateConfig)
 }
 
-private def mainRepoArgument(using builder: OParserBuilder[CmtaOptions]): OParser[File, CmtaOptions] =
+private def mainRepoArgument(using
+    builder: OParserBuilder[CmtaCommands]): OParser[MainRepositoryDirectory, CmtaCommands] =
   import builder.*
-  arg[File]("<Main repo>")
+  arg[MainRepositoryDirectory]("<Main repo>")
     .text("Root folder (or a subfolder thereof) the main repository")
-    .validate { f =>
-      if !f.exists then failure(s"$f does not exist")
-      else if !f.isDirectory then failure(s"$f is not a directory")
-      else success
-    }
-    .validate { f =>
-      Helpers.resolveMainRepoPath(f) match
-        case Right(path) => success
-        case Left(msg)   => failure(s"$f is not a git repository")
-    }
-    .action { (mainRepo, c) =>
-      val resolvedGitRoot: Option[CmtaOptions] = Helpers.resolveMainRepoPath(mainRepo).toOption.map { mainRepoRoot =>
-        c.copy(mainRepo = mainRepoRoot)
+    .validate(_.validate)
+    .throwOrAction { case (mainRepositoryDirectory, command: ValidCommand) =>
+      val mainRepositoryRoot = Helpers.resolveMainRepoPath(mainRepositoryDirectory.value) match {
+        case Right(root) => root
+        case Left(error) =>
+          cmt.printError(error)
+          mainRepositoryDirectory.value
       }
-      resolvedGitRoot.getOrElse(c.copy(mainRepo = mainRepo))
+      command.withMainRepositoryDirectory(MainRepositoryDirectory(mainRepositoryRoot))
     }
 
-private def configFileParser(using builder: OParserBuilder[CmtaOptions]): OParser[File, CmtaOptions] =
+private def configFileParser(using builder: OParserBuilder[CmtaCommands]): OParser[ConfigurationFile, CmtaCommands] =
   import builder.*
-  opt[File]("configuration").abbr("cfg").text("CMT configuration file").action { (configFile, c) =>
-    c.copy(configFile = Some(configFile))
+  opt[ConfigurationFile]("configuration").abbr("cfg").text("CMT configuration file").throwOrAction {
+    case (configurationFile, command: ValidCommand) =>
+      command.withMaybeConfigurationFile(maybeConfigurationFile = Some(configurationFile))
   }
 
-private def duplicateInsertBeforeParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def duplicateInsertBeforeParser(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
   cmd("dib")
     .text("Duplicate exercise and insert before")
-    .action { (_, c) =>
-      c.copy(command = DuplicateInsertBefore())
-    }
+    .action((_, _) => DuplicateInsertBefore.default())
     .children(
       mainRepoArgument,
-      opt[Int]("exercise-number").required().text("exercise number to duplicate").abbr("n").throwOrAction {
-        case (n, c @ CmtaOptions(mainRepo, x: DuplicateInsertBefore, _)) =>
-          c.copy(command = x.copy(exerciseNumber = n))
+      opt[ExerciseNumber]("exercise-number").required().text("exercise number to duplicate").abbr("n").throwOrAction {
+        case (exerciseNumber, command: DuplicateInsertBefore) =>
+          command.copy(exerciseNumber = exerciseNumber)
       })
 
-private def linearizeCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def linearizeCmdParser(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
   cmd("linearize")
     .text("Generate a linearized repository from a given main repository")
-    .action { (_, c) =>
-      c.copy(command = Linearize())
-    }
+    .action { (_, c) => Linearize.default() }
     .children(
       mainRepoArgument,
-      arg[File]("linearized repo parent folder")
+      arg[LinearizeBaseDirectory]("linearized repo parent folder")
         .text("Folder in which the linearized repository will be created")
-        .validate { baseFolder =>
-          (baseFolder.exists, baseFolder.isDirectory) match
-            case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} does not exist")
-            case (_, false) =>
-              failure(s"${baseFolder.getPath} is not a directory")
-        }
-        .throwOrAction {
-          case (linRepo, c @ CmtaOptions(mainRepo, x: Linearize, _)) =>
-            c.copy(command = x.copy(linearizeBaseFolder = Some(linRepo)))
+        .validate(_.validate)
+        .throwOrAction { case (linearizeBaseDirectory, command: Linearize) =>
+          command.copy(maybeLinearizeBaseDirectory = Some(linearizeBaseDirectory))
         },
       opt[Unit]("force-delete").text("Force-delete a pre-existing destination folder").abbr("f").throwOrAction {
-        case (_, c @ CmtaOptions(mainRepo, x: Linearize, _)) =>
-          c.copy(command = x.copy(forceDeleteExistingDestinationFolder = true))
+        case (_, command: Linearize) =>
+          command.copy(forceDeleteDestinationDirectory = DeleteExistingDirectoryDecision.DoNotDeleteExistingDirectory)
       })
 
-private def delinearizeCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def delinearizeCmdParser(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
   cmd("delinearize")
     .text("De-linearize a linearized repository to its corresponding main repository")
-    .action { (_, c) =>
-      c.copy(command = DeLinearize())
-    }
+    .action { (_, c) => Delinearize.default() }
     .children(
       mainRepoArgument,
-      arg[File]("linearized repo parent folder")
+      arg[LinearizeBaseDirectory]("linearized repo parent folder")
         .text("Folder holding the linearized repository")
-        .validate { baseFolder =>
-          (baseFolder.exists, baseFolder.isDirectory) match
-            case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} doesn't exist")
-            case (_, false) =>
-              failure(s"${baseFolder.getPath} is not a directory")
-        }
-        .throwOrAction {
-          case (linRepo, c @ CmtaOptions(mainRepo, x: DeLinearize, _)) =>
-            c.copy(command = x.copy(linearizeBaseFolder = Some(linRepo)))
+        .validate(_.validate)
+        .throwOrAction { case (linearizeBaseDirectory, command: Delinearize) =>
+          command.copy(maybeLinearizeBaseDirectory = Some(linearizeBaseDirectory))
         })
 
-private def studentifyCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def studentifyCmdParser(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
   cmd("studentify")
     .text("Generate a studentified repository from a given main repository")
-    .action { (_, c) =>
-      c.copy(command = Studentify())
-    }
+    .action { (_, args) => Studentify.default() }
     .children(
       mainRepoArgument,
-      arg[File]("<studentified repo parent folder>")
+      arg[StudentifiedDirectory]("<studentified repo parent folder>")
         .text("Folder in which the studentified repository will be created")
-        .validate { baseFolder =>
-          (baseFolder.exists, baseFolder.isDirectory) match
-            case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} does not exist")
-            case (_, false) =>
-              failure(s"${baseFolder.getPath} is not a directory")
-        }
-        .throwOrAction { case (studRepo, c @ CmtaOptions(_, x: Studentify, _)) =>
-          c.copy(command = x.copy(studentifyBaseFolder = Some(studRepo)))
+        .validate(_.validate)
+        .throwOrAction { case (studentifiedDirectory, command: Studentify) =>
+          command.copy(maybeStudentifiedDirectory = Some(studentifiedDirectory))
         },
-      opt[Unit]("force-delete").text("Force-delete a pre-existing destination folder").abbr("f")
-        .throwOrAction {
-          case (_, c @ CmtaOptions(mainRepo, x: Studentify, _)) =>
-            c.copy(command = x.copy(forceDeleteExistingDestinationFolder = true))
-        },
-      opt[Unit]("init-git").text("Initialize studentified repo as a git repo").abbr("g")
-        .throwOrAction {
-          case (_, c @ CmtaOptions(mainRepo, x: Studentify, _)) =>
-            c.copy(command = x.copy(initializeAsGitRepo = true))
-        })
+      opt[Unit]("force-delete").text("Force-delete a pre-existing destination folder").abbr("f").throwOrAction {
+        case (_, command: Studentify) =>
+          command.copy(forceDeleteDestinationDirectory = DeleteExistingDirectoryDecision.DeleteExistingDirectory)
+      },
+      opt[Unit]("init-git").text("Initialize studentified repo as a git repo").abbr("g").throwOrAction {
+        case (_, command: Studentify) =>
+          command.copy(initializeAsGitRepo = InitializeAsGitRepositoryDecision.InitializeAsGitRepository)
+      })
 
-private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def renumCmdParser(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
   cmd("renum")
     .text("Renumber exercises starting at a given offset and increment by a given step size")
-    .action { (_, c) =>
-      c.copy(command = RenumberExercises())
-    }
+    .action { (_, c) => RenumberExercises.default() }
     .children(
       mainRepoArgument,
-      opt[Int]("start-renumber-at")
+      opt[RenumberFrom]("renumber-from")
         .text("Start renumbering from exercise number #")
         .abbr("from")
-        .validate(startAt =>
-          if startAt >= 0 then success
-          else failure(s"renumber start exercise number should be >= 0"))
-        .throwOrAction {
-          case (startAt, c @ CmtaOptions(_, RenumberExercises(_, offset, step), _)) =>
-            c.copy(command = RenumberExercises(Some(startAt), offset, step))
+        .validate(_.validate)
+        .throwOrAction { case (renumberFrom, command: RenumberExercises) =>
+          command.copy(maybeRenumberFrom = Some(renumberFrom))
         },
-      opt[Int]("to")
+      opt[RenumberTo]("renumber-to")
         .text("Renumber start offset (default=1)")
         .abbr("to")
-        .validate(offset =>
-          if offset >= 0 then success
-          else failure(s"renumber offset should be >= 0"))
-        .throwOrAction {
-          case (offset, c @ CmtaOptions(_, RenumberExercises(startAt, _, step), _)) =>
-            c.copy(command = RenumberExercises(startAt, offset, step))
+        .validate(_.validate)
+        .throwOrAction { case (renumberTo, command: RenumberExercises) =>
+          command.copy(renumberTo = renumberTo)
         },
-      opt[Int]("step")
+      opt[RenumberStep]("renumber-step")
         .text("Renumber step size (default=1)")
         .abbr("step")
-        .validate(step =>
-          if step >= 1 then success
-          else failure(s"renumber step size should be >= 1"))
-        .throwOrAction {
-          case (step, c @ CmtaOptions(_, RenumberExercises(startAt, offset, _), _)) =>
-            c.copy(command = RenumberExercises(startAt, offset, step))
+        .validate(_.validate)
+        .throwOrAction { case (renumberStep, command: RenumberExercises) =>
+          command.copy(renumberStep = renumberStep)
         })
 
-extension [T](parser: OParser[T, CmtaOptions])
-  def throwOrAction(pf: PartialFunction[(T, CmtaOptions), CmtaOptions]): OParser[T, CmtaOptions] =
-    parser.action((argOpt, options) =>
-      pf.lift((argOpt, options))
-        .getOrElse(throw new IllegalStateException(
-          s"Received an unexpected command type '${options.command.getClass.getName}'")))
+extension [T](parser: OParser[T, CmtaCommands])
+  def throwOrAction(pf: PartialFunction[(T, CmtaCommands), CmtaCommands]): OParser[T, CmtaCommands] =
+    parser.action((argOpt, command) =>
+      pf.lift((argOpt, command))
+        .getOrElse(
+          throw new IllegalStateException(s"Received an unexpected command type '${command.getClass.getName}'")))
 
-private def validateConfig(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
+private def validateConfig(using builder: OParserBuilder[CmtaCommands]): OParser[Unit, CmtaCommands] =
   import builder.*
-  checkConfig(config =>
-    config.command match
+  checkConfig(command =>
+    command match
       case Missing => failure("missing command")
       case _       => success
   )

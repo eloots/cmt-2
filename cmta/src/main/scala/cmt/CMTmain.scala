@@ -1,48 +1,55 @@
 package cmt
 
 import scopt.OEffect.ReportError
+import cmt.FileLike.given
+import cmt.domain.{DeleteExistingDirectoryDecision, InitializeAsGitRepositoryDecision}
 
 object Main:
 
   def main(args: Array[String]): Unit =
     CmdLineParse.parse(args) match {
       case Right(options) =>
-        selectAndExecuteCommand(options)
+        options match
+          case validCommand: ValidCommand => selectAndExecuteCommand(validCommand)
+          case invalidCommand => printError(s"expected a valid command but received '$invalidCommand'")
 
       case Left(CmdLineParse.CmdLineParseError(x)) =>
         printError(x.collect { case ReportError(msg) => msg }.mkString("\n"))
     }
 
-  private def selectAndExecuteCommand(options: CmtaOptions): Unit = {
-    given CMTaConfig = CMTaConfig(options.mainRepo, options.configFile)
-
-    val config: CMTaConfig = CMTaConfig(options.mainRepo, options.configFile)
+  private def selectAndExecuteCommand(options: ValidCommand): Unit = {
+    val config: CMTaConfig = options.toConfig
+    given CMTaConfig = config
 
     options match {
-      case CmtaOptions(
-            mainRepo,
-            Studentify(Some(stuBase), forceDeleteExistingDestinationFolder: Boolean, initializeAsGitRepo: Boolean),
-            _) =>
-        CMTStudentify.studentify(mainRepo, stuBase, forceDeleteExistingDestinationFolder, initializeAsGitRepo)(config)
+      case Studentify(mainRepo, Some(stuBase), forceDeleteDestinationDirectory, initializeAsGitRepo, _) =>
+        CMTStudentify.studentify(
+          mainRepo.value,
+          stuBase.value,
+          forceDeleteDestinationDirectory == DeleteExistingDirectoryDecision.DeleteExistingDirectory,
+          initializeAsGitRepo == InitializeAsGitRepositoryDecision.InitializeAsGitRepository)(config)
 
-      case CmtaOptions(mainRepo, RenumberExercises(renumFromOpt, renumTo, renumBy), configFile) =>
+      case RenumberExercises(mainRepo, renumFromOpt, renumTo, renumBy, _) =>
         val message = renumFromOpt match {
           case Some(renumFrom) =>
             s"Renumbered exercises in ${mainRepo.getPath} from ${renumFrom} to ${renumTo} by ${renumBy}"
           case None => s"Renumbered exercises in ${mainRepo.getPath} to ${renumTo} by ${renumBy}"
         }
-        CMTAdmin.renumberExercises(mainRepo, renumFromOpt, renumTo, renumBy)(config).printResultOrError(message)
+        CMTAdmin.renumberExercises(mainRepo.value, renumFromOpt.map(_.value), renumTo.value, renumBy.value)(config).printResultOrError(message)
 
-      case CmtaOptions(mainRepo, DuplicateInsertBefore(exerciseNumber), configFile) =>
+      case DuplicateInsertBefore(mainRepo, exerciseNumber, _) =>
         CMTAdmin
-          .duplicateInsertBefore(mainRepo, exerciseNumber)(config)
+          .duplicateInsertBefore(mainRepo.value, exerciseNumber.value)(config)
           .printResultOrError(s"Duplicated and inserted exercise $exerciseNumber")
 
-      case CmtaOptions(mainRepo, Linearize(Some(linBase), forceDeleteExistingDestinationFolder: Boolean), _) =>
-        CMTLinearize.linearize(mainRepo, linBase, forceDeleteExistingDestinationFolder)(config)
+      case Linearize(mainRepo, Some(linBase), forceDeleteDestinationDirectory, _) =>
+        CMTLinearize.linearize(
+          mainRepo.value,
+          linBase.value,
+          forceDeleteDestinationDirectory == DeleteExistingDirectoryDecision.DeleteExistingDirectory)(config)
 
-      case CmtaOptions(mainRepo, DeLinearize(Some(linBase)), _) =>
-        CMTDeLinearize.delinearize(mainRepo, linBase)(config)
+      case Delinearize(mainRepo, Some(linBase), _) =>
+        CMTDeLinearize.delinearize(mainRepo.value, linBase.value)(config)
 
       case _ =>
     }
