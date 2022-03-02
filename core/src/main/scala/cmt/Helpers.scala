@@ -122,9 +122,11 @@ object Helpers:
       "test-code-folders" -> config.testCodeFolders.asJava,
       "read-me-files" -> config.readMeFiles.asJava,
       "exercises" -> exercises.asJava,
-      "cmt-studentified-dont-touch" -> config.cmtStudentifiedDontTouch.map(path => s"${config.studentifiedRepoActiveExerciseFolder}/${path}").asJava
-    )
-    val cmtConfig = ConfigFactory.parseMap(configMap.asJava).root().render(ConfigRenderOptions.concise().setFormatted(true))
+      "cmt-studentified-dont-touch" -> config.cmtStudentifiedDontTouch
+        .map(path => s"${config.studentifiedRepoActiveExerciseFolder}/${path}")
+        .asJava)
+    val cmtConfig =
+      ConfigFactory.parseMap(configMap.asJava).root().render(ConfigRenderOptions.concise().setFormatted(true))
     dumpStringToFile(cmtConfig, configFile)
 
   def writeStudentifiedCMTBookmark(bookmarkFile: File, firstExercise: String): Unit =
