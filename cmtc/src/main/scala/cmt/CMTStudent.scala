@@ -1,16 +1,13 @@
 package cmt
 
+import cmt.Helpers.*
+import cmt.version.BuildInfo
 import com.typesafe.config.ConfigFactory
-
-import scala.jdk.CollectionConverters.*
+import sbt.io.IO as sbtio
+import sbt.io.syntax.*
 
 import java.nio.charset.StandardCharsets
-
-import sbt.io.syntax.*
-import sbt.io.{IO as sbtio}
-
-import Helpers.*
-import cmt.version.BuildInfo
+import scala.jdk.CollectionConverters.*
 
 object CMTStudent:
 
