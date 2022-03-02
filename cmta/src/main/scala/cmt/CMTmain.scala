@@ -13,8 +13,7 @@ object Main:
         val errorMsg = x.collect { case ReportError(msg) => msg }.mkString("", "\n          ", "")
         val displayMsg = x.collect { case DisplayToErr(msg) => msg }.mkString("\n")
         System.err.println(displayMsg)
-        printError(
-          s"""|Error(s): ${errorMsg}""".stripMargin)
+        printErrorAndExit(s"""|Error(s): ${errorMsg}""".stripMargin)
     }
 
   private def selectAndExecuteCommand(options: CmtaOptions): Unit = {
