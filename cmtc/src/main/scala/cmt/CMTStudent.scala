@@ -10,8 +10,10 @@ import sbt.io.syntax.*
 import sbt.io.{IO as sbtio}
 
 import Helpers.*
+import cmt.version.BuildInfo
 
 object CMTStudent:
+
   def moveToNextExercise(studentifiedRepo: File)(config: CMTcConfig): Unit =
 
     val currentExercise =
