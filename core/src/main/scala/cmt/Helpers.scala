@@ -51,10 +51,8 @@ object Helpers:
     }
 
   def createStudentifiedFolderSkeleton(stuBase: File, studentifiedRootFolder: File)(config: CMTaConfig) =
-    if studentifiedRootFolder.exists then
-      printErrorAndExit(s"$studentifiedRootFolder exists already")
-    if !stuBase.canWrite then
-      printErrorAndExit(s"$stuBase isn't writeable")
+    if studentifiedRootFolder.exists then printErrorAndExit(s"$studentifiedRootFolder exists already")
+    if !stuBase.canWrite then printErrorAndExit(s"$stuBase isn't writeable")
 
     val solutionsFolder =
       studentifiedRootFolder / config.studentifiedRepoSolutionsFolder
