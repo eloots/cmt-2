@@ -1,6 +1,6 @@
 package cmt
 
-import cmt.Helpers.ExercisePrefixesAndExerciseNames
+import cmt.Helpers.ExercisePrefixesAndExerciseNames_TBR
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -68,7 +68,7 @@ class RenumberExercisesSpec
       "succeed if exercises are moved to a new offset and renumber step values" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 20, 2)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_020_desc",
           "exercise_022_desc",
@@ -80,7 +80,7 @@ class RenumberExercisesSpec
       "succeed and return the original exercise set when using the default offset and renumber step alues" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_001_desc",
           "exercise_002_desc",
@@ -92,7 +92,7 @@ class RenumberExercisesSpec
       "succeed if exercises are moved to offset 0 and the first exercise to renumber is the first one in the exercise series" in {
         val result = CMTAdmin.renumberExercises(mainRepo, Some(1), 0, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_000_desc",
           "exercise_001_desc",
@@ -104,7 +104,7 @@ class RenumberExercisesSpec
       "succeed and leave the first exercise number unchanged and create a gap between the first and second exercise" in {
         val result = CMTAdmin.renumberExercises(mainRepo, Some(1), 10, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_000_desc",
           "exercise_010_desc",
@@ -116,7 +116,7 @@ class RenumberExercisesSpec
       "succeed when renumbering moves exercises to the end of the available exercise number space" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 995, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_995_desc",
           "exercise_996_desc",
@@ -128,7 +128,7 @@ class RenumberExercisesSpec
       "fail when renumbering would move outside the available exercise number space and leave the exercise name unchanged" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 996, 1)(config)
         result shouldBe Left("Cannot renumber exercises as it would exceed the available exercise number space")
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_995_desc",
           "exercise_996_desc",
@@ -140,7 +140,7 @@ class RenumberExercisesSpec
       "succeed when moving exercises up to a range that overlaps with the current one" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 992, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_992_desc",
           "exercise_993_desc",
@@ -152,7 +152,7 @@ class RenumberExercisesSpec
       "succeed when moving exercises down to a range that overlaps with the current one" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 995, 1)(config)
         result shouldBe Right(())
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         val expectedExercises = Vector(
           "exercise_995_desc",
           "exercise_996_desc",
@@ -171,19 +171,19 @@ class RenumberExercisesSpec
       "fail when trying to shift all exercises one position downwards and leave the exercise name unchanged" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
         result shouldBe Left("Cannot renumber exercises as it would exceed the available exercise number space")
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         renumberedExercises shouldBe exercises
       }
       "fail when trying to move the second to last exercise on position downwards and leave the exercise name unchanged" in {
         val result = CMTAdmin.renumberExercises(mainRepo, Some(998), 999, 1)(config)
         result shouldBe Left("Cannot renumber exercises as it would exceed the available exercise number space")
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         renumberedExercises shouldBe exercises
       }
       "fail when trying to insert holes in the numbering and leave the exercise name unchanged" in {
         val result = CMTAdmin.renumberExercises(mainRepo, None, 0, 2)(config)
         result shouldBe Left("Cannot renumber exercises as it would exceed the available exercise number space")
-        val renumberedExercises = Helpers.getExercisePrefixAndExercises(mainRepo)(config).exercises
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
         renumberedExercises shouldBe exercises
       }
     }
