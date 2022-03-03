@@ -73,7 +73,7 @@ private def duplicateInsertBeforeParser(using builder: OParserBuilder[CmtaOption
         .required()
         .text("exercise number to duplicate")
         .abbr("n")
-        .validate(_.isANonNegativeInteger)
+        .validate(_.isNotNegative)
         .throwOrAction { case (n, c @ CmtaOptions(mainRepo, x: DuplicateInsertBefore, _)) =>
           c.copy(command = x.copy(exerciseNumber = n))
         })
@@ -109,13 +109,7 @@ private def delinearizeCmdParser(using builder: OParserBuilder[CmtaOptions]): OP
       mainRepoArgument,
       arg[File]("linearized repo parent folder")
         .text("Folder holding the linearized repository")
-        .validate { baseFolder =>
-          (baseFolder.exists, baseFolder.isDirectory) match
-            case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} doesn't exist")
-            case (_, false) =>
-              failure(s"${baseFolder.getPath} is not a directory")
-        }
+        .validate(_.existsAndIsADirectory)
         .throwOrAction { case (linRepo, c @ CmtaOptions(mainRepo, x: DeLinearize, _)) =>
           c.copy(command = x.copy(linearizeBaseFolder = Some(linRepo)))
         })
@@ -131,13 +125,7 @@ private def studentifyCmdParser(using builder: OParserBuilder[CmtaOptions]): OPa
       mainRepoArgument,
       arg[File]("<studentified repo parent folder>")
         .text("Folder in which the studentified repository will be created")
-        .validate { baseFolder =>
-          (baseFolder.exists, baseFolder.isDirectory) match
-            case (true, true) => success
-            case (false, _)   => failure(s"${baseFolder.getPath} does not exist")
-            case (_, false) =>
-              failure(s"${baseFolder.getPath} is not a directory")
-        }
+        .validate(_.existsAndIsADirectory)
         .throwOrAction { case (studRepo, c @ CmtaOptions(_, x: Studentify, _)) =>
           c.copy(command = x.copy(studentifyBaseFolder = Some(studRepo)))
         },
@@ -159,30 +147,18 @@ private def renumCmdParser(using builder: OParserBuilder[CmtaOptions]): OParser[
     }
     .children(
       mainRepoArgument,
-      opt[Int]("from")
-        .text("Start renumbering from exercise number #")
-        .validate(startAt =>
-          if startAt >= 0 then success
-          else failure(s"renumber start exercise number should be >= 0"))
-        .throwOrAction { case (startAt, c @ CmtaOptions(_, RenumberExercises(_, offset, step), _)) =>
+      opt[Int]("from").text("Start renumbering from exercise number #").validate(_.isNotNegative).throwOrAction {
+        case (startAt, c @ CmtaOptions(_, RenumberExercises(_, offset, step), _)) =>
           c.copy(command = RenumberExercises(Some(startAt), offset, step))
-        },
-      opt[Int]("to")
-        .text("Renumber start offset (default=1)")
-        .validate(offset =>
-          if offset >= 0 then success
-          else failure(s"renumber offset should be >= 0"))
-        .throwOrAction { case (offset, c @ CmtaOptions(_, RenumberExercises(startAt, _, step), _)) =>
+      },
+      opt[Int]("to").text("Renumber start offset (default=1)").validate(_.isNotNegative).throwOrAction {
+        case (offset, c @ CmtaOptions(_, RenumberExercises(startAt, _, step), _)) =>
           c.copy(command = RenumberExercises(startAt, offset, step))
-        },
-      opt[Int]("step")
-        .text("Renumber step size (default=1)")
-        .validate(step =>
-          if step >= 1 then success
-          else failure(s"renumber step size should be >= 1"))
-        .throwOrAction { case (step, c @ CmtaOptions(_, RenumberExercises(startAt, offset, _), _)) =>
+      },
+      opt[Int]("step").text("Renumber step size (default=1)").validate(_.isGreaterThanZero).throwOrAction {
+        case (step, c @ CmtaOptions(_, RenumberExercises(startAt, offset, _), _)) =>
           c.copy(command = RenumberExercises(startAt, offset, step))
-        })
+      })
 
 private def versionParser(using builder: OParserBuilder[CmtaOptions]): OParser[Unit, CmtaOptions] =
   import builder.*
