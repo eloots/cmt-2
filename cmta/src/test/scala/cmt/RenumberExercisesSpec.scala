@@ -197,6 +197,19 @@ class RenumberExercisesSpec
           "exercise_005_desc")
         renumberedExercises shouldBe expectedExercises
       }
+      "fail when trying to renumber an exercise if it would move into a gap in the numbering" in {
+        CMTAdmin.renumberExercises(mainRepo, Some(3), 10, 1)(config) shouldBe Right(())
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
+        val expectedExercises = Vector(
+          "exercise_001_desc",
+          "exercise_002_desc",
+          "exercise_010_desc",
+          "exercise_011_desc",
+          "exercise_012_desc")
+        val result = CMTAdmin.renumberExercises(mainRepo, Some(12), 5, 1)(config)
+        result shouldBe Left("Moved exercise range overlaps with other exercises")
+        renumberedExercises shouldBe expectedExercises
+      }
     }
     "given any renumbering in a fully packed exercise numbering space" should {
       val (mainRepo, codeFolder, config) = getMainRepoAndConfig()
