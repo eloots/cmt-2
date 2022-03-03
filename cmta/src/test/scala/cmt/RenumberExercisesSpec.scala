@@ -161,6 +161,42 @@ class RenumberExercisesSpec
           "exercise_999_desc")
         renumberedExercises shouldBe expectedExercises
       }
+      "succeed and return a series of exercises numbered starting at 1 when renumbering with default args" in {
+        val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
+        result shouldBe Right(())
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
+        val expectedExercises = Vector(
+          "exercise_001_desc",
+          "exercise_002_desc",
+          "exercise_003_desc",
+          "exercise_004_desc",
+          "exercise_005_desc")
+        renumberedExercises shouldBe expectedExercises
+      }
+      "fail and leave the exercise numbers unchanged when default renumbering is applied again" in {
+        val result = CMTAdmin.renumberExercises(mainRepo, None, 1, 1)(config)
+        result shouldBe Left("Renumber: nothing to renumber")
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
+        val expectedExercises = Vector(
+          "exercise_001_desc",
+          "exercise_002_desc",
+          "exercise_003_desc",
+          "exercise_004_desc",
+          "exercise_005_desc")
+        renumberedExercises shouldBe expectedExercises
+      }
+      "fail when trying to renumber a range of exercises that would clash with other exercises" in {
+        val result = CMTAdmin.renumberExercises(mainRepo, Some(3), 2, 1)(config)
+        result shouldBe Left("Moved exercise range overlaps with other exercises")
+        val renumberedExercises = Helpers.getExercisePrefixAndExercises_TBR(mainRepo)(config).exercises
+        val expectedExercises = Vector(
+          "exercise_001_desc",
+          "exercise_002_desc",
+          "exercise_003_desc",
+          "exercise_004_desc",
+          "exercise_005_desc")
+        renumberedExercises shouldBe expectedExercises
+      }
     }
     "given any renumbering in a fully packed exercise numbering space" should {
       val (mainRepo, codeFolder, config) = getMainRepoAndConfig()
