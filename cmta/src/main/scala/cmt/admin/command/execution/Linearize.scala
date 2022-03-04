@@ -10,7 +10,7 @@ import sbt.io.syntax.*
 given Executable[Linearize] with
   extension (cmd: Linearize)
     def execute(): Either[String, String] = {
-      exitIfGitIndexOrWorkspaceIsntClean(cmd.mainRepository.value)
+      exitIfGitIndexOrWorkspaceIsntClean_TBR(cmd.mainRepository.value)
 
       println(s"Linearizing ${toConsoleGreen(cmd.mainRepository.value.getPath)} to ${toConsoleGreen(
           cmd.linearizeBaseDirectory.value.getPath)}")

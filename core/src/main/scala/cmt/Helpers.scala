@@ -35,7 +35,7 @@ object Helpers:
     "git rev-parse --show-toplevel".toProcessCmd(workingDir = repo).runAndReadOutput()
   }
 
-  def exitIfGitIndexOrWorkspaceIsntClean(mainRepo: File): Unit =
+  def exitIfGitIndexOrWorkspaceIsntClean_TBR(mainRepo: File): Unit =
     import ProcessDSL.toProcessCmd
     val workspaceIsUnclean = "git status --porcelain"
       .toProcessCmd(workingDir = mainRepo)
@@ -50,7 +50,22 @@ object Helpers:
       case Left(_)  =>
     }
 
-  def createStudentifiedFolderSkeleton(stuBase: File, studentifiedRootFolder: File)(config: CMTaConfig) =
+  def exitIfGitIndexOrWorkspaceIsntClean(mainRepo: File): Either[String, Unit] =
+    import ProcessDSL.toProcessCmd
+    val workspaceIsUnclean = "git status --porcelain"
+      .toProcessCmd(workingDir = mainRepo)
+      .runAndReadOutput()
+      .map(str => str.split("\n").toSeq.map(_.trim).filter(_ != ""))
+      .map(_.length)
+
+    workspaceIsUnclean match {
+      case Right(cnt) if cnt > 0 =>
+        Left(s"main repository isn't clean. Commit changes and try again")
+      case Right(_) => Right(())
+      case Left(msg)  => Left(msg)
+    }
+
+  def createStudentifiedFolderSkeleton(stuBase: File, studentifiedRootFolder: File)(config: CMTaConfig): StudentifiedSkelFolders =
     if studentifiedRootFolder.exists then printErrorAndExit(s"$studentifiedRootFolder exists already")
     if !stuBase.canWrite then printErrorAndExit(s"$stuBase isn't writeable")
 
@@ -60,16 +75,16 @@ object Helpers:
     sbtio.createDirectories(Seq(studentifiedRootFolder, solutionsFolder))
     StudentifiedSkelFolders(solutionsFolder)
 
-  def addFirstExercise(cleanedMainRepo: File, firstExercise: String, studentifiedRootFolder: File)(config: CMTaConfig) =
+  def addFirstExercise(cleanedMainRepo: File, firstExercise: String, studentifiedRootFolder: File)(config: CMTaConfig): Unit =
     sbtio.copyDirectory(
       cleanedMainRepo / config.mainRepoExerciseFolder / firstExercise,
       studentifiedRootFolder / config.studentifiedRepoActiveExerciseFolder)
 
   final case class ExercisePrefixesAndExerciseNames_TBR(prefixes: Set[String], exercises: Vector[String])
-  final case class ExercisePrefixAndExerciseNames(exercisePrefix: String, exercises: Vector[String])
+  final case class ExercisesMetadata(exercisePrefix: String, exercises: Vector[String], exerciseNumbers: Vector[Int])
 
-  def getExercisePrefixAndExercises(mainRepo: File)(
-      config: CMTaConfig): Either[String, ExercisePrefixAndExerciseNames] =
+  def getExerciseMetadata(mainRepo: File)(
+      config: CMTaConfig): Either[String, ExercisesMetadata] =
     val PrefixSpec = raw"(.*)_\d{3}_\w+$$".r
     val matchedNames =
       sbtio.listFiles(isExerciseFolder())(mainRepo / config.mainRepoExerciseFolder).map(_.getName).to(List)
@@ -80,9 +95,14 @@ object Helpers:
       case exercises =>
         prefixes.size match
           case 0 => Left("No exercises found")
-          case 1 => Right(ExercisePrefixAndExerciseNames(prefixes.head, exercises))
+          case 1 =>
+            val exerciseNumbers = exercises.map(extractExerciseNr)
+            if exerciseNumbers.size == exerciseNumbers.to(Set).size then
+              Right(ExercisesMetadata(prefixes.head, exercises, exerciseNumbers))
+            else
+              Left("Duplicate exercise numbers found")
           case _ => Left(s"Multiple exercise prefixes (${prefixes.mkString(", ")}) found")
-  end getExercisePrefixAndExercises
+  end getExerciseMetadata
 
   // TODO: This method needs to be removed once the refactoring of all cmta command is completed
   def getExercisePrefixAndExercises_TBR(mainRepo: File)(config: CMTaConfig): ExercisePrefixesAndExerciseNames_TBR =

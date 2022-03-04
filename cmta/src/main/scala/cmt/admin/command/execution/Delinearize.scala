@@ -13,7 +13,7 @@ case class ExerciseNameAndSHA(exName: String, exSHA: String)
 given Executable[Delinearize] with
   extension (cmd: Delinearize)
     def execute(): Either[String, String] = {
-      exitIfGitIndexOrWorkspaceIsntClean(cmd.mainRepository.value)
+      exitIfGitIndexOrWorkspaceIsntClean_TBR(cmd.mainRepository.value)
 
       println(s"De-linearizing ${toConsoleGreen(cmd.mainRepository.value.getPath)} to ${toConsoleGreen(
           cmd.linearizeBaseDirectory.value.getPath)}")
