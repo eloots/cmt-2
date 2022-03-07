@@ -5,9 +5,7 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.matchers.should.Matchers
 
-final class StudentificationFunctionalSpec extends AnyFeatureSpecLike
-  with Matchers
-  with GivenWhenThen with CMTSupport {
+final class StudentificationFunctionalSpec extends AnyFeatureSpecLike with Matchers with GivenWhenThen with CMTSupport {
 
   info("As a user")
   info("I want to be able to studentify a main repository")
