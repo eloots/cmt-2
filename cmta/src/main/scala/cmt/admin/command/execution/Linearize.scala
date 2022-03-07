@@ -59,7 +59,7 @@ private object LinearizeHelpers:
         sbtio.copyDirectory(from, linearizedCodeFolder, preserveLastModified = true)
         val commitResult: Either[String, Unit] = commitToGit(exercise, linearizedRootFolder)
         commitResult match
-          case l @ Left(_) => l
-          case Right(())   => commitExercises(cleanedMainRepo, remainingExercises, linearizedRootFolder, cmd)
+          case Right(_)   => commitExercises(cleanedMainRepo, remainingExercises, linearizedRootFolder, cmd)
+          case left => left
       case Nil => Right(())
 end LinearizeHelpers
