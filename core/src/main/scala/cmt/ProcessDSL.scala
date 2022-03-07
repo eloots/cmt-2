@@ -11,21 +11,6 @@ object ProcessDSL:
   final case class ProcessCmd(cmd: Seq[String], workingDir: File)
 
   extension (cmd: ProcessCmd)
-    // TODO: Not used anymore - shall we remove or keep it?
-//    def runAndExitIfFailed(errorMsg: String): Unit =
-//      val status = Try(Process(cmd.cmd, cmd.workingDir).!)
-//      if status.getOrElse(-1) != 0 then
-//        System.err.println(s"""
-//                   |$errorMsg
-//                   |  Executed command: ${cmd.cmd.mkString(" ")}
-//                   |  Working directory: ${cmd.workingDir}
-//           """.stripMargin)
-//        System.exit(status.getOrElse(-1))
-//
-//    def run: Int = {
-//      val status = Try(Process(cmd.cmd, cmd.workingDir).!)
-//      status.getOrElse(-1)
-//    }
 
     def runWithStatus(msg: String): Either[String, Unit] = {
       val status = Try(Process(cmd.cmd, cmd.workingDir).!)
