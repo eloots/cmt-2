@@ -52,3 +52,4 @@ given Executable[DuplicateInsertBefore] with
 
       } yield duplicateInsertBeforeResult
     }
+end given

@@ -44,6 +44,7 @@ given Executable[Studentify] with
         successMessage <- Right(exercises.mkString("Processed exercises:\n  ", "\n  ", "\n"))
 
       } yield successMessage
+end given
 
 private object StudentifyHelpers:
   def buildStudentifiedRepository(
