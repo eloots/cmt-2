@@ -1,9 +1,8 @@
 package cmt.admin.cli
 
-import cmt.TestDirectories
 import cmt.admin.Domain.ExerciseNumber
 import cmt.admin.cli.CliCommand.DuplicateInsertBefore
-import cmt.support.CommandLineArguments
+import cmt.support.{CommandLineArguments, TestDirectories}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.File
 import scopt.OEffect.ReportError
