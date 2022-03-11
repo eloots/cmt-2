@@ -5,6 +5,7 @@ import cmt.admin.Domain.{ExerciseNumber, MainRepository}
 import cmt.admin.cli.CliCommand.DuplicateInsertBefore
 import cmt.admin.cli.CliOptions
 import cmt.support.CommandLineArguments
+import cmt.support.CommandLineArguments.*
 import org.scalatest.prop.Tables
 import sbt.io.syntax.{File, file}
 import scopt.OEffect.ReportError

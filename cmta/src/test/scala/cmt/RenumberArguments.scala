@@ -5,6 +5,7 @@ import cmt.admin.Domain.{MainRepository, RenumberOffset, RenumberStart, Renumber
 import cmt.admin.cli.CliCommand.RenumberExercises
 import cmt.admin.cli.CliOptions
 import cmt.support.CommandLineArguments
+import cmt.support.CommandLineArguments.*
 import org.scalatest.prop.Tables
 import sbt.io.syntax.{File, file}
 import scopt.OEffect.ReportError
@@ -13,8 +14,7 @@ object RenumberArguments extends CommandLineArguments[CliOptions] with Tables wi
 
   val identifier = "renum"
 
-  def invalidArguments(tempDirectory: File) = Table(
-    ("args", "errors"),
+  def invalidArguments(tempDirectory: File) = invalidArgumentsTable(
     (Seq(identifier), Seq(ReportError("Missing argument <Main repo>"))),
     (
       Seq(identifier, nonExistentDirectory(tempDirectory)),
@@ -24,8 +24,7 @@ object RenumberArguments extends CommandLineArguments[CliOptions] with Tables wi
       Seq(identifier, tempDirectory.getAbsolutePath),
       Seq(ReportError(s"${tempDirectory.getAbsolutePath} is not in a git repository"))))
 
-  def validArguments(tempDirectory: File) = Table(
-    ("args", "expectedResult"),
+  def validArguments(tempDirectory: File) = validArgumentsTable(
     (
       Seq(identifier, firstRealDirectory),
       CliOptions.default(
