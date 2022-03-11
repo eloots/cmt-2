@@ -1,11 +1,10 @@
-package cmt
+package cmt.admin.cli
 
 import cmt.TestDirectories
 import cmt.admin.Domain.{MainRepository, RenumberOffset, RenumberStart, RenumberStep}
 import cmt.admin.cli.CliCommand.RenumberExercises
-import cmt.admin.cli.CliOptions
 import cmt.support.CommandLineArguments
-import cmt.support.CommandLineArguments.*
+import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.{File, file}
 import scopt.OEffect.ReportError

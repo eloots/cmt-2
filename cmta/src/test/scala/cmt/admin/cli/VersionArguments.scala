@@ -1,12 +1,11 @@
-package cmt
+package cmt.admin.cli
 
 import cmt.TestDirectories
 import cmt.admin.cli.CliCommand.Version
-import cmt.admin.cli.CliOptions
 import cmt.support.CommandLineArguments
-import cmt.support.CommandLineArguments.*
+import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
-import sbt.io.syntax.{File, file}
+import sbt.io.syntax.File
 
 object VersionArguments extends CommandLineArguments[CliOptions] with Tables with TestDirectories {
 
