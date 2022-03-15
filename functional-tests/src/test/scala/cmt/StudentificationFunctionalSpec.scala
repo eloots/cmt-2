@@ -6,8 +6,9 @@ import java.util.UUID
 import java.nio.charset.StandardCharsets
 import cmt.admin.Domain.MainRepository
 import cmt.client.Domain.StudentifiedRepo
+import cmt.client.cli.CliCommand.PullTemplate
 import cmt.support.{ExerciseMetadata, SourcesStruct}
-import org.scalatest.{GivenWhenThen, BeforeAndAfterAll}
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.matchers.should.Matchers
 import support.*
@@ -50,6 +51,17 @@ trait StudentifiedRepoFixture {
             test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T3.scala"),
             readme = List("README.md"),
             main = List("build.sbt", "src/main/cmt/Main1.scala")))
+      .addExercise("exercise_004_desc" ->
+        SourcesStruct(
+          test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T3.scala"),
+          readme = List("README.md"),
+          main = List(
+            "build.sbt",
+            "src/main/cmt/Main1.scala",
+            "src/main/cmt/sample/Sample1.scala",
+            "src/main/cmt/sample/Sample2.scala",
+            "src/main/cmt/template/Template1.scala",
+            "src/main/cmt/template/Template2.scala")))
 
   def createMainRepo(tmpDir: File, repoName: String, exercises: Exercises): File =
     val mainRepo = tmpDir / repoName
@@ -114,6 +126,12 @@ trait StudentifiedRepoFixture {
     import cmt.client.Domain.ExerciseId
     import cmt.client.command.execution.given
     RestoreState(config, StudentifiedRepo(studentifiedRepo), ExerciseId(exercise)).execute()
+
+  def pullTemplate(config: CMTcConfig, studentifiedRepo: File, templatePath: String): Unit =
+    import cmt.client.command.ClientCommand.PullTemplate
+    import cmt.client.Domain.TemplatePath
+    import cmt.client.command.execution.given
+    PullTemplate(config, StudentifiedRepo(studentifiedRepo), TemplatePath(templatePath)).execute()
 
   def addFileToStudentifiedRepo(studentifiedRepo: File, filePath: String): SourceFiles =
     val fileContent = UUID.randomUUID()
@@ -185,8 +203,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_002_desc") ++ exercises.getReadmeCode(
-          "exercise_002_desc") ++ exercises.getMainCode("exercise_001_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_002_desc") ++
+          exercises.getReadmeCode("exercise_002_desc") ++
+          exercises.getMainCode("exercise_001_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
 
         val deletedTests: SourceFiles =
@@ -203,8 +226,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode = exercises.getTestCode("exercise_002_desc") ++ exercises.getReadmeCode(
-          "exercise_002_desc") ++ exercises.getMainCode("exercise_002_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode =
+          exercises.getTestCode("exercise_002_desc") ++
+          exercises.getReadmeCode("exercise_002_desc") ++
+          exercises.getMainCode("exercise_002_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
       }
 
@@ -217,8 +245,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_003_desc") ++ exercises.getReadmeCode(
-          "exercise_003_desc") ++ exercises.getMainCode("exercise_002_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_003_desc") ++
+          exercises.getReadmeCode("exercise_003_desc") ++
+          exercises.getMainCode("exercise_002_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
 
         val deletedTests: SourceFiles =
@@ -237,8 +270,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_002_desc") ++ exercises.getReadmeCode(
-          "exercise_002_desc") ++ exercises.getMainCode("exercise_003_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_002_desc") ++
+          exercises.getReadmeCode("exercise_002_desc") ++
+          exercises.getMainCode("exercise_003_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
 
         val deletedTests: SourceFiles =
@@ -255,8 +293,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_001_desc") ++ exercises.getReadmeCode(
-          "exercise_001_desc") ++ exercises.getMainCode("exercise_003_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_001_desc") ++
+          exercises.getReadmeCode("exercise_001_desc") ++
+          exercises.getMainCode("exercise_003_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
 
         val deletedTests: SourceFiles =
@@ -276,8 +319,14 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_001_desc") ++ exercises.getReadmeCode(
-          "exercise_001_desc") ++ exercises.getMainCode("exercise_003_desc") ++ dontTouchMeFile ++ modifiedMainCode
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_001_desc") ++
+          exercises.getReadmeCode("exercise_001_desc") ++
+          exercises.getMainCode("exercise_003_desc") ++
+          dontTouchMeFile ++
+          modifiedMainCode
+        // @formatter:on
         actualCode shouldBe expectedCode
       }
 
@@ -290,8 +339,13 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_002_desc") ++ exercises.getReadmeCode(
-          "exercise_002_desc") ++ exercises.getMainCode("exercise_002_desc") ++ dontTouchMeFile
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_002_desc") ++
+          exercises.getReadmeCode("exercise_002_desc") ++
+          exercises.getMainCode("exercise_002_desc") ++
+          dontTouchMeFile
+        // @formatter:on
         actualCode shouldBe expectedCode
       }
 
@@ -305,8 +359,62 @@ final class StudentificationFunctionalSpec
 
       {
         val actualCode: SourceFiles = extractCodeFromRepo(studentifiedRepoCodeFolder)
-        val expectedCode: SourceFiles = exercises.getTestCode("exercise_001_desc") ++ exercises.getReadmeCode(
-          "exercise_001_desc") ++ exercises.getMainCode("exercise_003_desc") ++ dontTouchMeFile_1 ++ modifiedMainCode
+        // @formatter:off
+        val expectedCode: SourceFiles =
+          exercises.getTestCode("exercise_001_desc") ++
+          exercises.getReadmeCode("exercise_001_desc") ++
+          exercises.getMainCode("exercise_003_desc") ++
+          dontTouchMeFile_1 ++
+          modifiedMainCode
+        // @formatter:on
+        actualCode shouldBe expectedCode
+      }
+
+      When(
+        "moving to and pulling the solution for the first exercise, moving to the last exercise and pulling a template file")
+
+      gotoFirstExercise(cMTcConfig, studentifiedRepoFolder)
+      pullSolution(cMTcConfig, studentifiedRepoFolder)
+      gotoExercise(cMTcConfig, studentifiedRepoFolder, "exercise_004_desc")
+      pullTemplate(cMTcConfig, studentifiedRepoFolder, "src/main/cmt/sample/Sample1.scala")
+
+      Then("should be the solution for the first exercise + the pulled in template file")
+
+      {
+        val actualCode = extractCodeFromRepo(studentifiedRepoCodeFolder)
+
+        // @formatter:off
+        val expectedCode =
+          exercises.getMainCode("exercise_001_desc") ++
+          exercises.getTestCode("exercise_004_desc") ++
+          dontTouchMeFile_1 ++
+          exercises.getReadmeCode("exercise_004_desc") +
+          exercises.getMainFile("exercise_004_desc", "src/main/cmt/sample/Sample1.scala")
+        // @formatter:on
+        actualCode shouldBe expectedCode
+      }
+
+      When("having already pulled one template file for the last exercise, pulling in a template folder")
+
+      pullTemplate(cMTcConfig, studentifiedRepoFolder, "src/main/cmt/template")
+
+      Then(
+        "should be the solution for the first exercise + the pulled template file + the files in the template folder")
+
+      {
+        val actualCode = extractCodeFromRepo(studentifiedRepoCodeFolder)
+
+        // @formatter:off
+        val expectedCode =
+          exercises.getMainCode("exercise_001_desc") ++
+          exercises.getTestCode("exercise_004_desc") ++
+          dontTouchMeFile_1 ++
+          exercises.getReadmeCode("exercise_004_desc") +
+          exercises.getMainFile("exercise_004_desc", "src/main/cmt/sample/Sample1.scala") +
+          exercises.getMainFile("exercise_004_desc", "src/main/cmt/template/Template1.scala") +
+          exercises.getMainFile("exercise_004_desc", "src/main/cmt/template/Template2.scala")
+        // @formatter:on
+
         actualCode shouldBe expectedCode
       }
     }

@@ -61,6 +61,8 @@ object Exercises:
 
     def getMainCode(exerciseName: ExerciseName): SourceFiles =
       exercises(exerciseName).main
+    def getMainFile(exerciseName: ExerciseName, filePath: String): Tuple2[FilePath, CheckSum] =
+      filePath -> getMainCode(exerciseName)(filePath)
     def getTestCode(exerciseName: ExerciseName): SourceFiles =
       exercises(exerciseName).test
     def getReadmeCode(exerciseName: ExerciseName): SourceFiles =
@@ -83,6 +85,10 @@ object SourceFiles:
     @targetName("mergeWith")
     def ++(other: SourceFiles): SourceFiles =
       sf ++ other
+
+    @targetName("mergeFile")
+    def +(other: Tuple2[FilePath, CheckSum]): SourceFiles =
+      sf + other
 
     @targetName("minus")
     def --(other: SourceFiles): SourceFiles =
