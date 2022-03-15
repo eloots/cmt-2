@@ -32,28 +32,62 @@ trait StudentifiedRepoFixture {
       |}""".stripMargin
 
   val exerciseMetadata: ExerciseMetadata =
+    // @formatter:off
     ExerciseMetadata()
       .addExercise(
         "exercise_001_desc" ->
           SourcesStruct(
-            test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T2.scala"),
+            test =
+              List(
+                "src/test/cmt/T1.scala",
+                "src/test/cmt/pkg/T2.scala"
+              ),
             readme = List("README.md"),
-            main = List("build.sbt", "src/main/cmt/Main.scala")))
+            main =
+              List(
+                "build.sbt",
+                "src/main/cmt/Main.scala")
+          )
+      )
       .addExercise(
         "exercise_002_desc" ->
           SourcesStruct(
-            test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T2.scala"),
+            test =
+              List(
+                "src/test/cmt/T1.scala",
+                "src/test/cmt/pkg/T2.scala"
+              ),
             readme = List("README.md"),
-            main = List("build.sbt", "src/main/cmt/Main.scala", "src/main/cmt/Main1.scala")))
+            main =
+              List(
+                "build.sbt",
+                "src/main/cmt/Main.scala",
+                "src/main/cmt/Main1.scala")
+          )
+      )
       .addExercise(
         "exercise_003_desc" ->
           SourcesStruct(
-            test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T3.scala"),
+            test =
+              List(
+                "src/test/cmt/T1.scala",
+                "src/test/cmt/pkg/T3.scala"
+              ),
             readme = List("README.md"),
-            main = List("build.sbt", "src/main/cmt/Main1.scala")))
+            main =
+              List(
+                "build.sbt",
+                "src/main/cmt/Main1.scala"
+              )
+          )
+      )
       .addExercise("exercise_004_desc" ->
         SourcesStruct(
-          test = List("src/test/cmt/T1.scala", "src/test/cmt/pkg/T3.scala"),
+          test =
+            List(
+              "src/test/cmt/T1.scala",
+              "src/test/cmt/pkg/T3.scala"
+            ),
           readme = List("README.md"),
           main = List(
             "build.sbt",
@@ -61,7 +95,11 @@ trait StudentifiedRepoFixture {
             "src/main/cmt/sample/Sample1.scala",
             "src/main/cmt/sample/Sample2.scala",
             "src/main/cmt/template/Template1.scala",
-            "src/main/cmt/template/Template2.scala")))
+            "src/main/cmt/template/Template2.scala"
+          )
+        )
+      )
+    // @formatter:on
 
   def createMainRepo(tmpDir: File, repoName: String, exercises: Exercises): File =
     val mainRepo = tmpDir / repoName
