@@ -1,8 +1,7 @@
 package cmt.admin.cli
 
-import cmt.TestDirectories
 import cmt.admin.cli.CliCommand.Version
-import cmt.support.CommandLineArguments
+import cmt.support.{CommandLineArguments, TestDirectories}
 import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.File

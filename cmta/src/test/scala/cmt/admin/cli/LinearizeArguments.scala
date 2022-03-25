@@ -1,9 +1,8 @@
 package cmt.admin.cli
 
-import cmt.TestDirectories
 import cmt.admin.Domain.{ForceDeleteDestinationDirectory, LinearizeBaseDirectory, MainRepository}
 import cmt.admin.cli.CliCommand.Linearize
-import cmt.support.CommandLineArguments
+import cmt.support.{CommandLineArguments, TestDirectories}
 import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.{File, file}
