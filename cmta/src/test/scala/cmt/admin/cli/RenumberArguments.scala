@@ -13,8 +13,10 @@ package cmt.admin.cli
   * See the License for the specific language governing permissions and limitations under the License.
   */
 
+import cmt.Helpers
 import cmt.admin.Domain.{MainRepository, RenumberOffset, RenumberStart, RenumberStep}
 import cmt.admin.cli.CliCommand.RenumberExercises
+import cmt.admin.cli.StudentifyArguments.baseDirectory
 import cmt.support.{CommandLineArguments, TestDirectories}
 import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
@@ -40,30 +42,30 @@ object RenumberArguments extends CommandLineArguments[CliOptions] with Tables wi
       Seq(identifier, firstRealDirectory),
       CliOptions.default(
         command = RenumberExercises,
-        mainRepository = MainRepository(file(".").getAbsoluteFile.getParentFile))),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)))),
     (
       Seq(identifier, firstRealDirectory, "--from", "9"),
       CliOptions.default(
         command = RenumberExercises,
-        mainRepository = MainRepository(currentDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeRenumberStart = Some(RenumberStart(9)))),
     (
       Seq(identifier, firstRealDirectory, "--to", "99"),
       CliOptions.default(
         command = RenumberExercises,
-        mainRepository = MainRepository(currentDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         renumberOffset = RenumberOffset(99))),
     (
       Seq(identifier, firstRealDirectory, "--step", "999"),
       CliOptions.default(
         command = RenumberExercises,
-        mainRepository = MainRepository(currentDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         renumberStep = RenumberStep(999))),
     (
       Seq(identifier, firstRealDirectory, "--from", "1", "--to", "2", "--step", "3"),
       CliOptions.default(
         command = RenumberExercises,
-        mainRepository = MainRepository(currentDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeRenumberStart = Some(RenumberStart(1)),
         renumberOffset = RenumberOffset(2),
         renumberStep = RenumberStep(3))))

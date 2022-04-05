@@ -13,8 +13,10 @@ package cmt.admin.cli
   * See the License for the specific language governing permissions and limitations under the License.
   */
 
+import cmt.Helpers
 import cmt.admin.Domain.{ForceDeleteDestinationDirectory, InitializeGitRepo, MainRepository, StudentifyBaseDirectory}
 import cmt.admin.cli.CliCommand.Studentify
+import cmt.admin.cli.LinearizeArguments.currentDirectory
 import cmt.support.{CommandLineArguments, TestDirectories}
 import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
@@ -50,41 +52,41 @@ object StudentifyArguments extends CommandLineArguments[CliOptions] with Tables 
       Seq(identifier, firstRealDirectory, secondRealDirectory),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-f"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--init-git"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         initializeAsGitRepo = InitializeGitRepo(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-g"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         initializeAsGitRepo = InitializeGitRepo(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete", "--init-git"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true),
         initializeAsGitRepo = InitializeGitRepo(true))),
@@ -92,7 +94,7 @@ object StudentifyArguments extends CommandLineArguments[CliOptions] with Tables 
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-f", "-g"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(baseDirectory),
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true),
         initializeAsGitRepo = InitializeGitRepo(true))))

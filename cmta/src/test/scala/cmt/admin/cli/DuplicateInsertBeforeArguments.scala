@@ -13,8 +13,10 @@ package cmt.admin.cli
   * See the License for the specific language governing permissions and limitations under the License.
   */
 
-import cmt.admin.Domain.ExerciseNumber
+import cmt.Helpers
+import cmt.admin.Domain.{ExerciseNumber, MainRepository}
 import cmt.admin.cli.CliCommand.DuplicateInsertBefore
+import cmt.admin.cli.RenumberArguments.baseDirectory
 import cmt.support.{CommandLineArguments, TestDirectories}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.File
@@ -45,5 +47,8 @@ object DuplicateInsertBeforeArguments extends CommandLineArguments[CliOptions] w
     ("args", "expectedResult"),
     (
       Seq(identifier, firstRealDirectory, "--exercise-number", "1"),
-      CliOptions.default(command = DuplicateInsertBefore, exerciseNumber = ExerciseNumber(1))))
+      CliOptions.default(
+        command = DuplicateInsertBefore,
+        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        exerciseNumber = ExerciseNumber(1))))
 }
