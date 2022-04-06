@@ -13,12 +13,14 @@ package cmt.support
   * See the License for the specific language governing permissions and limitations under the License.
   */
 
+import cmt.Helpers
 import sbt.io.syntax.{File, file}
 import cmt.Helpers.adaptToOSSeparatorChar
 
 trait TestDirectories {
 
   def baseDirectory = file(".").getAbsoluteFile.getParentFile
+  def baseDirectoryGitRoot = Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)
 
   def nonExistentDirectory(tempDirectory: File) = adaptToOSSeparatorChar(
     s"${tempDirectory.getAbsolutePath}/i/do/not/exist")
@@ -26,5 +28,4 @@ trait TestDirectories {
   val secondRealDirectory = adaptToOSSeparatorChar("./cmta/src/test/resources/i-am-another-directory")
   val realFile = adaptToOSSeparatorChar("./cmta/src/test/resources/i-am-a-file.txt")
 
-  val currentDirectory = file(".").getAbsoluteFile.getParentFile
 }

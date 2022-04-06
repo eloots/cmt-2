@@ -16,7 +16,6 @@ package cmt.admin.cli
 import cmt.Helpers
 import cmt.admin.Domain.{ExerciseNumber, MainRepository}
 import cmt.admin.cli.CliCommand.DuplicateInsertBefore
-import cmt.admin.cli.RenumberArguments.baseDirectory
 import cmt.support.{CommandLineArguments, TestDirectories}
 import org.scalatest.prop.Tables
 import sbt.io.syntax.File
@@ -49,6 +48,6 @@ object DuplicateInsertBeforeArguments extends CommandLineArguments[CliOptions] w
       Seq(identifier, firstRealDirectory, "--exercise-number", "1"),
       CliOptions.default(
         command = DuplicateInsertBefore,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         exerciseNumber = ExerciseNumber(1))))
 }

@@ -47,6 +47,6 @@ object DelinearizeArguments extends CommandLineArguments[CliOptions] with Tables
       Seq(identifier, firstRealDirectory, secondRealDirectory),
       CliOptions.default(
         command = DeLinearize,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(file(".")).toOption.getOrElse(file("."))),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeLinearizeBaseFolder = Some(LinearizeBaseDirectory(file(secondRealDirectory))))))
 }

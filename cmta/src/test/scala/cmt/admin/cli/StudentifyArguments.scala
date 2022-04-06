@@ -16,7 +16,6 @@ package cmt.admin.cli
 import cmt.Helpers
 import cmt.admin.Domain.{ForceDeleteDestinationDirectory, InitializeGitRepo, MainRepository, StudentifyBaseDirectory}
 import cmt.admin.cli.CliCommand.Studentify
-import cmt.admin.cli.LinearizeArguments.currentDirectory
 import cmt.support.{CommandLineArguments, TestDirectories}
 import cmt.support.CommandLineArguments.{invalidArgumentsTable, validArgumentsTable}
 import org.scalatest.prop.Tables
@@ -52,41 +51,41 @@ object StudentifyArguments extends CommandLineArguments[CliOptions] with Tables 
       Seq(identifier, firstRealDirectory, secondRealDirectory),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-f"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--init-git"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         initializeAsGitRepo = InitializeGitRepo(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-g"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         initializeAsGitRepo = InitializeGitRepo(true))),
     (
       Seq(identifier, firstRealDirectory, secondRealDirectory, "--force-delete", "--init-git"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true),
         initializeAsGitRepo = InitializeGitRepo(true))),
@@ -94,7 +93,7 @@ object StudentifyArguments extends CommandLineArguments[CliOptions] with Tables 
       Seq(identifier, firstRealDirectory, secondRealDirectory, "-f", "-g"),
       CliOptions.default(
         command = Studentify,
-        mainRepository = MainRepository(Helpers.resolveMainRepoPath(baseDirectory).toOption.getOrElse(baseDirectory)),
+        mainRepository = MainRepository(baseDirectoryGitRoot),
         maybeStudentifyBaseFolder = Some(StudentifyBaseDirectory(file(secondRealDirectory))),
         forceDeleteDestinationDirectory = ForceDeleteDestinationDirectory(true),
         initializeAsGitRepo = InitializeGitRepo(true))))
