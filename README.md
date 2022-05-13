@@ -2,5 +2,6 @@
 
 POC for a new Course Management Tools implementation approach
 
-- Documentation to follow 
-- This new version is build-tool agnostic
+This repo has been archived and the code has been merged into
+the [course-management-tools](ihttps://github.com/eloots/course-management-tools)
+repository
